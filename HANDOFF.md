@@ -50,9 +50,9 @@ src/pid_dynamic_systems/
   simulation/       # engine.py (OK)
   analysis/         # metrics.py (PEND)
   ui/               # app.py (PEND)
-  report/           # pdf_generator.py (PEND)
+  report/         # pdf_generator.py (OK: ReportLab + matplotlib)
 tests/
-  unit/             # dc_motor, thermal, msd, pid, engine (OK)
+  unit/    # dc_motor, thermal, msd, pid, engine, metrics, stability, charts, explanations, pdf (OK)
   integration/
 ```
 
@@ -188,7 +188,7 @@ Metricas a calcular:
 | 2   | controllers/pid.py + 7 tests | COMPLETA |
 | 3   | simulation/engine.py + analysis/metrics.py | COMPLETA (3.1 + 3.2 + 3.3) |
 | 4   | ui/app.py (Streamlit + Plotly) | PENDIENTE |
-| 5   | report/pdf_generator.py (ReportLab) | PENDIENTE |
+| 5   | report/pdf_generator.py (ReportLab) | PARCIAL (5.1 PDF OK; faltan 5.2 deploy, 5.3 docs) |
 
 ## 9. Gotchas
 
@@ -252,6 +252,7 @@ Si eres el asistente que recibe este handoff:
 7. No introduzcas dependencias nuevas sin justificar.
 
 Bienvenido al proyecto. Pregunta al usuario en que fase esta.
+
 
 
 
