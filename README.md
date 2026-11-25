@@ -1,7 +1,8 @@
-# PID & Dynamic Systems
+﻿# PID & Dynamic Systems
 
 > Laboratorio interactivo para el estudio de sistemas dinamicos y controladores PID.
 
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://pid-dynamic-systems.streamlit.app)
 [![Tests](https://img.shields.io/badge/tests-59%20passed-brightgreen)](https://github.com/OballenEC/pid-dynamic-systems)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
