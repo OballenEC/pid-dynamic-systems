@@ -20,6 +20,7 @@ from pid_dynamic_systems.ui.explanations import explain_all
 from pid_dynamic_systems.ui.state import (
     MODEL_REGISTRY, build_model, init_session_state,
 )
+from pid_dynamic_systems.ui.state import HELP_TEXTS, MODEL_INTRO, PRESETS
 from pid_dynamic_systems.ui.state import cached_simulate
 
 from pid_dynamic_systems.analysis.stability import (
@@ -43,12 +44,30 @@ st.title("PID & Dynamic Systems")
 st.caption("Laboratorio interactivo de sistemas dinamicos y control PID")
 
 with st.sidebar:
+    st.caption("Carga un ejemplo listo y presiona **Simular** para ver resultados. Luego explora cambiando un parametro a la vez.")
+    preset_name = st.selectbox(
+        "Cargar ejemplo",
+        ["(ninguno)"] + list(PRESETS.keys()),
+        key="preset_selector",
+        help="Los presets cargan modelo + PID + simulacion ya sintonizados para un caso tipico.",
+    )
+    if preset_name != "(ninguno)" and st.button("Aplicar preset", key="apply_preset"):
+        p = PRESETS[preset_name]
+        st.session_state["model_name"] = p["model_name"]
+        for k in ("Kp", "Ki", "Kd", "tau_f", "ref", "t_final", "dt"):
+            if k in p:
+                st.session_state[k] = float(p[k])
+        st.success(f"Aplicado: {preset_name}")
+        st.rerun()
+
+    st.divider()
     st.header("Modelo")
     model_names = list(MODEL_REGISTRY.keys())
     default_idx = model_names.index(st.session_state["model_name"])
     model_name = st.selectbox("Selecciona el sistema", model_names, index=default_idx)
     st.session_state["model_name"] = model_name
 
+    st.caption(MODEL_INTRO.get(model_name, ''))
     st.caption(MODEL_REGISTRY[model_name]["description"])
     st.caption(
         f"Salida: {MODEL_REGISTRY[model_name]['output']}  |  "
@@ -68,29 +87,29 @@ with st.sidebar:
         )
 
     st.subheader("Controlador PID")
-    Kp = st.number_input("Kp", min_value=0.0, max_value=1000.0, step=0.1, key="Kp")
-    Ki = st.number_input("Ki", min_value=0.0, max_value=1000.0, step=0.1, key="Ki")
-    Kd = st.number_input("Kd", min_value=0.0, max_value=100.0, step=0.01, key="Kd")
+    Kp = st.number_input("Kp", min_value=0.0, max_value=1000.0, step=0.1, key="Kp", help=HELP_TEXTS["Kp"])
+    Ki = st.number_input("Ki", min_value=0.0, max_value=1000.0, step=0.1, key="Ki", help=HELP_TEXTS["Ki"])
+    Kd = st.number_input("Kd", min_value=0.0, max_value=100.0, step=0.01, key="Kd", help=HELP_TEXTS["Kd"])
     tau_f = st.number_input("tau_f [s]", min_value=1e-4, max_value=1.0,
-                            step=0.001, format="%.4f", key="tau_f")
+                            step=0.001, format="%.4f", key="tau_f", help=HELP_TEXTS["tau_f"])
 
     st.subheader("Simulacion")
-    ref = st.number_input("Setpoint", step=0.5, key="ref")
+    ref = st.number_input("Setpoint", step=0.5, key="ref", help=HELP_TEXTS["ref"])
     t_final = st.number_input("Tiempo final [s]", min_value=0.1, max_value=60.0,
-                              step=0.5, key="t_final")
+                              step=0.5, key="t_final", help=HELP_TEXTS["t_final"])
     dt = st.number_input("dt [s]", min_value=1e-4, max_value=0.1,
-                         step=0.001, format="%.4f", key="dt")
-    u_min = st.number_input("u_min", step=1.0, key="u_min")
-    u_max = st.number_input("u_max", step=1.0, key="u_max")
+                         step=0.001, format="%.4f", key="dt", help=HELP_TEXTS["dt"])
+    u_min = st.number_input("u_min", step=1.0, key="u_min", help=HELP_TEXTS["u_min"])
+    u_max = st.number_input("u_max", step=1.0, key="u_max", help=HELP_TEXTS["u_max"])
 
     st.subheader("Perturbacion")
     dist_enabled = st.checkbox("Aplicar perturbacion", key="dist_enabled")
     dist_t_step = st.number_input(
         "t_step [s]", min_value=0.0, max_value=60.0, step=0.5,
-        key="dist_t_step", disabled=not dist_enabled,
+        key="dist_t_step", help=HELP_TEXTS["dist_t_step"], disabled=not dist_enabled,
     )
     dist_magnitude = st.number_input(
-        "magnitud", step=0.1, key="dist_magnitude",
+        "magnitud", step=0.1, key="dist_magnitude", help=HELP_TEXTS["dist_magnitude"],
         disabled=not dist_enabled,
     )
 
@@ -123,11 +142,35 @@ if simulate_btn:
 result = st.session_state.get("result")
 saved_snapshot = st.session_state.get("result_snapshot")
 
-tab_sim, tab_analysis, tab_learn = st.tabs(["Simulacion", "Analisis", "Aprender"])
+tab_sim, tab_analysis, tab_learn, tab_guide = st.tabs(["Simulacion", "Analisis", "Aprender", "Guia"])
 
 with tab_sim:
     if result is None:
-        st.info("Configura el sistema en el sidebar y presiona **Simular**.")
+        st.header("Bienvenido al laboratorio de control")
+        st.markdown(
+            "Esta app simula **sistemas fisicos** bajo un controlador **PID**. "
+            "Eliges un modelo (motor, termico o masa-resorte), ajustas sus "
+            "parametros y las ganancias del controlador, y observas como responde."
+        )
+        st.subheader("Como empezar en 3 pasos")
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.markdown("**1. Elige un modelo**")
+            st.caption("En la barra lateral izquierda. O carga un preset listo.")
+        with col2:
+            st.markdown("**2. Ajusta el PID**")
+            st.caption("Kp, Ki, Kd controlan el comportamiento. Pasa el mouse por cada campo para ver que hace.")
+        with col3:
+            st.markdown("**3. Presiona Simular**")
+            st.caption("Veras la respuesta, las metricas y podras descargar CSV o PDF.")
+        st.divider()
+        st.subheader("Recomendacion para tu primera prueba")
+        st.markdown(
+            "Carga el preset **DC - respuesta ideal** (arriba del sidebar) "
+            "y presiona el boton **Simular**. Despues cambia solo `Kp` y "
+            "vuelve a simular para ver el efecto."
+        )
+        st.info("Consejo: el tab **Guia** (al lado de Aprender) explica cada concepto en detalle.")
     else:
         if saved_snapshot != current_snapshot:
             st.warning("Los parametros cambiaron. Presiona **Simular** para actualizar.")
@@ -343,3 +386,86 @@ with tab_learn:
                 "- **tau_f** filtra la derivada: mas grande = mas suave pero "
                 "menos reactivo."
             )
+with tab_guide:
+    st.header("Guia de uso")
+    st.markdown(
+        "Manual rapido de la app. Para la version completa, ver "
+        "[`docs/user_manual.md`](https://github.com/OballenEC/pid-dynamic-systems/blob/main/docs/user_manual.md) "
+        "en el repositorio."
+    )
+
+    st.subheader("Que hace esta app")
+    st.markdown(
+        "Simula **3 sistemas fisicos** bajo un controlador **PID discreto**. "
+        "Puedes cambiar parametros del modelo y del controlador, ejecutar la "
+        "simulacion, y ver el resultado en tiempo real con graficas, metricas "
+        "y explicaciones generadas automaticamente."
+    )
+
+    st.subheader("Los 3 sistemas")
+    st.markdown(
+        "- **Motor DC:** control de velocidad angular. Entrada = voltaje, salida = omega [rad/s].\n"
+        "- **Sistema termico:** control de temperatura. Entrada = potencia, salida = T [K].\n"
+        "- **Masa-resorte-amortiguador:** control de posicion. Entrada = fuerza, salida = x [m]."
+    )
+
+    with st.expander("Que significa cada parametro del PID", expanded=False):
+        st.markdown(
+            "**Kp (proporcional):** reacciona al error actual. Aumentar Kp = mas "
+            "rapido pero mas overshoot.\n\n"
+            "**Ki (integral):** acumula el error en el tiempo. Elimina el error "
+            "estacionario (offset). Si es muy alto, causa oscilaciones lentas.\n\n"
+            "**Kd (derivativo):** reacciona al cambio del error. Amortigua el "
+            "overshoot. Si es muy alto, amplifica ruido.\n\n"
+            "**tau_f:** constante del filtro de derivada. Mas grande = derivada "
+            "mas suave pero menos reactiva."
+        )
+
+    with st.expander("Que significa cada metrica de la simulacion", expanded=False):
+        st.markdown(
+            "- **Rise time:** tiempo en ir del 10% al 90% del valor final. "
+            "Mide velocidad de respuesta.\n"
+            "- **Settling time (+-2%):** tiempo en entrar y quedarse dentro del "
+            "+-2% del setpoint. Mide cuando se estabiliza.\n"
+            "- **Overshoot (%):** cuanto rebasa el setpoint. 0% = sin sobrepico.\n"
+            "- **SSE:** error estacionario. Diferencia final respecto al setpoint.\n"
+            "- **ISE:** integral del error cuadratico. Penaliza errores grandes.\n"
+            "- **Pasos saturados:** cuantos pasos el controlador quedo limitado "
+            "por u_min/u_max."
+        )
+
+    with st.expander("Que significa el tab Analisis", expanded=False):
+        st.markdown(
+            "**Polos del lazo cerrado:** raices del denominador de T(s) = G*C/(1+G*C).\n"
+            "- Re < 0: sistema estable\n"
+            "- Re > 0: sistema INESTABLE\n"
+            "- Cerca del eje imaginario: margen pequeno\n\n"
+            "**zeta:** coeficiente de amortiguamiento. zeta < 1 = subamortiguado (oscila).\n\n"
+            "**wn:** frecuencia natural. Mas grande = mas rapido.\n\n"
+            "**Bode:** muestra como responde el sistema a distintas frecuencias."
+        )
+
+    with st.expander("Reglas de oro del PID", expanded=True):
+        st.markdown(
+            "1. **Aumenta Kp** -> mas rapido, mas overshoot, riesgo de inestabilidad.\n"
+            "2. **Aumenta Ki** -> elimina offset, pero puede oscilar.\n"
+            "3. **Aumenta Kd** -> reduce overshoot, pero amplifica ruido.\n"
+            "4. **Siempre**: cambia un parametro a la vez y compara resultados.\n"
+            "5. **Si el sistema es inestable**: empieza reduciendo Kp, luego Ki."
+        )
+
+    with st.expander("Como interpretar el tab Aprender", expanded=False):
+        st.markdown(
+            "El tab **Aprender** genera texto dinamicamente segun los resultados "
+            "reales de tu simulacion. Si cambias Kp y simulas, el texto cambia "
+            "para reflejar el nuevo comportamiento. Usalo para entender **por "
+            "que** paso lo que viste."
+        )
+
+    with st.expander("Problemas comunes", expanded=False):
+        st.markdown(
+            "- **\"El sistema no converge\"**: aumenta Ki o extiende t_final.\n"
+            "- **\"Oscila mucho\"**: reduce Kp o aumenta Kd.\n"
+            "- **\"La senal de control se satura\"**: aumenta u_max o reduce las ganancias.\n"
+            "- **\"El PDF tarda\"**: la primera generacion tarda 2-3 s (matplotlib). Es normal."
+        )

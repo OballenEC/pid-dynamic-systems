@@ -105,3 +105,66 @@ def cached_simulate(
         dist_fn = lambda t, _m=dist_magnitude, _t=dist_t_step: _m if t >= _t else 0.0
     return simulate(model, ctrl, ref=ref, t_final=t_final, dt=dt,
                     disturbance=dist_fn)
+# === Textos de ayuda para tooltips de parametros ===
+HELP_TEXTS = {
+    # --- PID ---
+    "Kp": "Ganancia proporcional. Aumentar Kp = respuesta mas rapida y mas overshoot. Puede causar inestabilidad si es muy alto.",
+    "Ki": "Ganancia integral. Elimina el error estacionario (offset). Si es muy alto puede causar oscilaciones lentas.",
+    "Kd": "Ganancia derivativa. Amortigua el sobreimpulso. Si es muy alto amplifica ruido de medicion.",
+    "tau_f": "Constante de tiempo del filtro de derivada. Mas grande = derivada mas suave pero menos reactiva. Tipico: 0.01 s.",
+    # --- Simulacion ---
+    "ref": "Setpoint: el valor que quieres que el sistema alcance.",
+    "t_final": "Duracion total de la simulacion en segundos.",
+    "dt": "Paso de integracion. Mas pequeno = mas preciso pero mas lento. Tipico: 0.001 s.",
+    "u_min": "Limite inferior del actuador. El controlador no puede dar valores menores.",
+    "u_max": "Limite superior del actuador. El controlador no puede dar valores mayores.",
+    "dist_t_step": "Instante (s) en que se aplica el escalon de perturbacion.",
+    "dist_magnitude": "Magnitud del escalon de perturbacion (sumada a la entrada).",
+    # --- Modelos ---
+    "R": "Resistencia. En motor: de armadura (Ohm). En termico: resistencia termica (K/W).",
+    "L": "Inductancia de armadura (H). Afecta que tan rapido responde la corriente.",
+    "J": "Inercia del rotor (kg.m^2). Mas inercia = respuesta mas lenta.",
+    "B": "Friccion viscosa (N.m.s/rad). Disipa energia, amortigua.",
+    "Kt": "Constante de torque (N.m/A). Relaciona corriente con par mecanico.",
+    "Ke": "Constante electromotriz (V.s/rad). Relaciona velocidad con voltaje inducido.",
+    "C": "Capacidad termica (J/K). Energia necesaria para subir 1 K de temperatura.",
+    "T_amb_ref": "Temperatura ambiente de referencia (K). 293.15 K = 20 C.",
+    "m": "Masa (kg).",
+    "c": "Amortiguamiento viscoso (N.s/m). Disipa energia.",
+    "k": "Rigidez del resorte (N/m). Que tan duro es el resorte.",
+}
+
+# === Intro de cada modelo (que es y para que sirve) ===
+MODEL_INTRO = {
+    "Motor DC": "Sistema electromecanico que regula la velocidad angular de un motor mediante el voltaje aplicado. Clasico en robotica y control industrial.",
+    "Sistema termico": "Cuerpo con capacidad termica que intercambia calor con el ambiente. Ejemplo: control de temperatura en un horno.",
+    "Masa-resorte-amortiguador": "Sistema mecanico de segundo orden. Ejemplo clasico: suspension de un vehiculo o posicionamiento de precision.",
+}
+
+# === Presets: ejemplos listos para cargar ===
+PRESETS = {
+    "DC - respuesta ideal": {
+        "model_name": "Motor DC",
+        "Kp": 2.0, "Ki": 5.0, "Kd": 0.0, "tau_f": 0.01,
+        "ref": 10.0, "t_final": 5.0, "dt": 0.001,
+        "desc": "PI sintonizado: converge rapido sin overshoot severo.",
+    },
+    "DC - overshoot alto": {
+        "model_name": "Motor DC",
+        "Kp": 10.0, "Ki": 20.0, "Kd": 0.0, "tau_f": 0.01,
+        "ref": 10.0, "t_final": 5.0, "dt": 0.001,
+        "desc": "Kp alto: respuesta rapida pero con sobreimpulso grande.",
+    },
+    "Termico - control tipico": {
+        "model_name": "Sistema termico",
+        "Kp": 100.0, "Ki": 10.0, "Kd": 0.0, "tau_f": 0.01,
+        "ref": 320.0, "t_final": 300.0, "dt": 0.01,
+        "desc": "Control de temperatura con escalon de 20 C.",
+    },
+    "MSD - amortiguado": {
+        "model_name": "Masa-resorte-amortiguador",
+        "Kp": 10.0, "Ki": 5.0, "Kd": 2.0, "tau_f": 0.01,
+        "ref": 1.0, "t_final": 10.0, "dt": 0.001,
+        "desc": "PID con Kd para amortiguar el segundo orden.",
+    },
+}
