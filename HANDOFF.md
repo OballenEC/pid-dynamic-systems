@@ -5,7 +5,7 @@
 Plataforma de simulacion de 3 sistemas dinamicos con PID.
 Stack: Python + numpy + scipy + control + streamlit + plotly + pytest.
 
-**Estado:** Fases 0-4.5, 5.1 y 5.1b completas. Pendientes 5.2, 5.3.
+**Estado:** Fases 0-4.5 y 5.1-5.3 completas. Pendiente 5.2 (deploy).
 ## 1. Preferencias del desarrollador (CRITICO)
 
 - **TODO por PowerShell.** Bloques copy-paste listos para ejecutar:
@@ -252,6 +252,7 @@ Si eres el asistente que recibe este handoff:
 7. No introduzcas dependencias nuevas sin justificar.
 
 Bienvenido al proyecto. Pregunta al usuario en que fase esta.
+
 
 
 
