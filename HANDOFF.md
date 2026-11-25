@@ -5,7 +5,7 @@
 Plataforma de simulacion de 3 sistemas dinamicos con PID.
 Stack: Python + numpy + scipy + control + streamlit + plotly + pytest.
 
-**Estado:** PROYECTO COMPLETO (Fases 0-5.3) + mejoras de UX. Deploy: https://pid-dynamic-systems.streamlit.app + feature Comparar (5to tab: A/B)
+**Estado:** PROYECTO COMPLETO (Fases 0-5.3). Deploy: https://pid-dynamic-systems.streamlit.app. Features extra: tooltips, presets, guia, comparacion A/B. 70 tests.
 ## 1. Preferencias del desarrollador (CRITICO)
 
 - **TODO por PowerShell.** Bloques copy-paste listos para ejecutar:
@@ -252,6 +252,7 @@ Si eres el asistente que recibe este handoff:
 7. No introduzcas dependencias nuevas sin justificar.
 
 Bienvenido al proyecto. Pregunta al usuario en que fase esta.
+
 
 
 
