@@ -1,4 +1,4 @@
-﻿"""Controlador PID discreto con derivada filtrada y anti-windup.
+"""Controlador PID discreto con derivada filtrada y anti-windup.
 
 Ecuacion: u[k] = Kp*e[k] + I[k] + Kd*d_f[k]
 

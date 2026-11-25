@@ -1,4 +1,4 @@
-﻿"""Modelo masa-resorte-amortiguador (segundo orden).
+"""Modelo masa-resorte-amortiguador (segundo orden).
 
 Dinamica:  m x'' + c x' + k x = F + F_dist
 

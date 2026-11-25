@@ -1,4 +1,4 @@
-﻿"""Modelo del motor electrico DC controlado por voltaje de armadura.
+"""Modelo del motor electrico DC controlado por voltaje de armadura.
 
 Ecuaciones diferenciales (tiempo continuo):
 

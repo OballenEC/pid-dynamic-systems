@@ -1,4 +1,4 @@
-﻿"""Tests del modelo termico de primer orden."""
+"""Tests del modelo termico de primer orden."""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-﻿"""Motor de simulacion en lazo cerrado con ZOH del PID.
+"""Motor de simulacion en lazo cerrado con ZOH del PID.
 
 En cada intervalo [t_k, t_k+1] el controlador entrega u (constante
 por zero-order hold) y solve_ivp integra el modelo con esa u fija.

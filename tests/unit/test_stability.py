@@ -1,4 +1,4 @@
-﻿"""Tests de analisis de estabilidad."""
+"""Tests de analisis de estabilidad."""
 
 from __future__ import annotations
 

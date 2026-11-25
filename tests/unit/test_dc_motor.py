@@ -1,4 +1,4 @@
-﻿"""Pruebas unitarias del modelo de motor DC."""
+"""Pruebas unitarias del modelo de motor DC."""
 
 import numpy as np
 import pytest

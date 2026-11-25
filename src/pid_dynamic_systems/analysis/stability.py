@@ -1,4 +1,4 @@
-﻿"""Analisis de estabilidad de lazo cerrado con PID."""
+"""Analisis de estabilidad de lazo cerrado con PID."""
 
 from __future__ import annotations
 

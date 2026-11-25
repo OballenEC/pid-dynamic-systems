@@ -1,4 +1,4 @@
-﻿"""Tests del motor de simulacion en lazo cerrado."""
+"""Tests del motor de simulacion en lazo cerrado."""
 
 from __future__ import annotations
 

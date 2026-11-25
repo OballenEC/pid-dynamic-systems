@@ -1,4 +1,4 @@
-﻿"""Tests del controlador PID discreto."""
+"""Tests del controlador PID discreto."""
 
 from __future__ import annotations
 

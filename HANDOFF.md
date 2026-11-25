@@ -203,6 +203,8 @@ Metricas a calcular:
 5. **Ejecucion de scripts:** si `Activate.ps1` es bloqueado,
    `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned`.
 6. **`pyproject.toml` usa `pythonpath = ["src"]`**, asi pytest encuentra
+
+7. **`Set-Content -Encoding utf8` en PS 5.1 escribe BOM.** Usar `[System.IO.File]::WriteAllText($path, $txt, [System.Text.UTF8Encoding]::new($false))` para evitar `invalid non-printable character U+FEFF`.
    el paquete sin instalar.
 
 ## 10. Comandos utiles
@@ -250,6 +252,7 @@ Si eres el asistente que recibe este handoff:
 7. No introduzcas dependencias nuevas sin justificar.
 
 Bienvenido al proyecto. Pregunta al usuario en que fase esta.
+
 
 
 

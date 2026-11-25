@@ -1,4 +1,4 @@
-﻿"""Tests del modelo masa-resorte-amortiguador (segundo orden)."""
+"""Tests del modelo masa-resorte-amortiguador (segundo orden)."""
 
 from __future__ import annotations
 

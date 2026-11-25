@@ -1,4 +1,4 @@
-﻿"""Metricas de respuesta temporal para sistemas de control."""
+"""Metricas de respuesta temporal para sistemas de control."""
 
 from __future__ import annotations
 

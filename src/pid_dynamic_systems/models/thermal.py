@@ -1,4 +1,4 @@
-﻿"""Modelo del sistema termico de primer orden.
+"""Modelo del sistema termico de primer orden.
 
 Dinamica:  C dT/dt = Q_in + (T_amb - T)/R
 

@@ -1,4 +1,4 @@
-﻿"""Tests de metricas de respuesta temporal."""
+"""Tests de metricas de respuesta temporal."""
 
 from __future__ import annotations
 
