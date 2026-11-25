@@ -129,7 +129,7 @@ HELP_TEXTS = {
     "Ke": "Constante electromotriz (V.s/rad). Relaciona velocidad con voltaje inducido.",
     "C": "Capacidad termica (J/K). Energia necesaria para subir 1 K de temperatura.",
     "T_amb_ref": "Temperatura ambiente de referencia (K). 293.15 K = 20 C.",
-    "m": "Masa (kg).",
+    "m": "Masa del cuerpo (kg). Afecta la inercia del sistema.",
     "c": "Amortiguamiento viscoso (N.s/m). Disipa energia.",
     "k": "Rigidez del resorte (N/m). Que tan duro es el resorte.",
 }
