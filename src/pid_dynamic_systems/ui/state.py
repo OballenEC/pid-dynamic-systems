@@ -76,3 +76,32 @@ def build_model(model_name: str, params: dict):
     """Construye la instancia del modelo con los parametros del sidebar."""
     cls = MODEL_REGISTRY[model_name]["class"]
     return cls(**params)
+
+from pid_dynamic_systems.controllers.pid import PIDController
+from pid_dynamic_systems.simulation.engine import simulate
+
+
+@st.cache_data(show_spinner=False)
+def cached_simulate(
+    model_name: str,
+    params_tuple: tuple[tuple[str, float], ...],
+    Kp: float, Ki: float, Kd: float, tau_f: float,
+    ref: float, t_final: float, dt: float,
+    u_min: float, u_max: float,
+    dist_enabled: bool, dist_t_step: float, dist_magnitude: float,
+):
+    """Wrapper hasheable de simulate() para @st.cache_data.
+
+    Reconstruye modelo + controlador adentro porque los objetos
+    no son hasheables. Devuelve el SimulationResult (que si lo es
+    una vez calculado; Streamlit lo serializa via pickle).
+    """
+    params = dict(params_tuple)
+    model = build_model(model_name, params)
+    ctrl = PIDController(Kp=Kp, Ki=Ki, Kd=Kd, tau_f=tau_f,
+                         u_min=u_min, u_max=u_max, dt=dt)
+    dist_fn = None
+    if dist_enabled:
+        dist_fn = lambda t, _m=dist_magnitude, _t=dist_t_step: _m if t >= _t else 0.0
+    return simulate(model, ctrl, ref=ref, t_final=t_final, dt=dt,
+                    disturbance=dist_fn)

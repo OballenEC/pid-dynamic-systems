@@ -20,6 +20,7 @@ from pid_dynamic_systems.ui.explanations import explain_all
 from pid_dynamic_systems.ui.state import (
     MODEL_REGISTRY, build_model, init_session_state,
 )
+from pid_dynamic_systems.ui.state import cached_simulate
 
 from pid_dynamic_systems.analysis.stability import (
     damping_ratio, is_stable, natural_frequency,
@@ -94,7 +95,7 @@ with st.sidebar:
     )
 
     st.divider()
-    simulate_btn = st.button("Simular", type="primary", use_container_width=True)
+    simulate_btn = st.button("Simular", type="primary")
 # === MAIN ===
 current_snapshot = (
     model_name,
@@ -105,18 +106,18 @@ current_snapshot = (
 )
 
 if simulate_btn:
-    ctrl = PIDController(Kp=Kp, Ki=Ki, Kd=Kd, tau_f=tau_f,
-                         u_min=u_min, u_max=u_max, dt=dt)
-    model = build_model(model_name, params)
-    dist_fn = None
-    if dist_enabled:
-        dist_fn = lambda t, _m=dist_magnitude, _t=dist_t_step: _m if t >= _t else 0.0
     with st.spinner("Simulando..."):
-        result = simulate(model, ctrl, ref=ref, t_final=t_final, dt=dt,
-                          disturbance=dist_fn)
+        result = cached_simulate(
+            model_name,
+            tuple(sorted(params.items())),
+            float(Kp), float(Ki), float(Kd), float(tau_f),
+            float(ref), float(t_final), float(dt),
+            float(u_min), float(u_max),
+            bool(dist_enabled), float(dist_t_step), float(dist_magnitude),
+        )
     st.session_state["result"] = result
     st.session_state["result_snapshot"] = current_snapshot
-    st.session_state["result_model"] = model
+    st.session_state["result_model"] = build_model(model_name, params)
     st.session_state["result_model_name"] = model_name
 
 result = st.session_state.get("result")
@@ -201,10 +202,10 @@ with tab_analysis:
                     "|p| (wn)": f"{natural_frequency(p_c):.4f}",
                     "zeta": f"{damping_ratio(p_c):.4f}",
                 })
-            st.dataframe(pole_data, use_container_width=True)
+            st.dataframe(pole_data)
 
         st.subheader("Plano complejo")
-        st.plotly_chart(poles_chart(poles), use_container_width=True)
+        st.plotly_chart(poles_chart(poles))
 
         st.subheader("Respuesta al escalon (lazo cerrado)")
         st.plotly_chart(
