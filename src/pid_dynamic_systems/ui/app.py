@@ -115,6 +115,35 @@ with st.sidebar:
 
     st.divider()
     simulate_btn = st.button("Simular", type="primary")
+
+    st.subheader("Comparar configuraciones")
+    st.caption("Guarda la config actual como A o B. Luego ve al tab Comparar.")
+    col_a, col_b = st.columns(2)
+    with col_a:
+        if st.button("Guardar A"):
+            st.session_state["config_a"] = capture_config(
+                model_name, params, Kp, Ki, Kd, tau_f, ref, t_final, dt,
+                u_min, u_max, dist_enabled, dist_t_step, dist_magnitude,
+            )
+            st.success("Config A guardada")
+    with col_b:
+        if st.button("Guardar B"):
+            st.session_state["config_b"] = capture_config(
+                model_name, params, Kp, Ki, Kd, tau_f, ref, t_final, dt,
+                u_min, u_max, dist_enabled, dist_t_step, dist_magnitude,
+            )
+            st.success("Config B guardada")
+
+    has_a = "config_a" in st.session_state
+    has_b = "config_b" in st.session_state
+    if has_a and has_b:
+        st.info("A y B guardadas. Ve al tab **Comparar**.")
+    elif has_a:
+        st.caption("A guardada. Falta B.")
+    elif has_b:
+        st.caption("B guardada. Falta A.")
+    else:
+        st.caption("Aun no hay configuraciones guardadas.")
 # === MAIN ===
 current_snapshot = (
     model_name,
@@ -142,7 +171,7 @@ if simulate_btn:
 result = st.session_state.get("result")
 saved_snapshot = st.session_state.get("result_snapshot")
 
-tab_sim, tab_analysis, tab_learn, tab_guide = st.tabs(["Simulacion", "Analisis", "Aprender", "Guia"])
+tab_sim, tab_analysis, tab_learn, tab_guide, tab_compare = st.tabs(["Simulacion", "Analisis", "Aprender", "Guia", "Comparar"])
 
 with tab_sim:
     if result is None:
@@ -469,3 +498,73 @@ with tab_guide:
             "- **\"La senal de control se satura\"**: aumenta u_max o reduce las ganancias.\n"
             "- **\"El PDF tarda\"**: la primera generacion tarda 2-3 s (matplotlib). Es normal."
         )
+with tab_compare:
+    st.header("Comparar configuraciones")
+    cfg_a = st.session_state.get("config_a")
+    cfg_b = st.session_state.get("config_b")
+
+    if cfg_a is None and cfg_b is None:
+        st.info(
+            "Aun no hay configuraciones guardadas. Ve al sidebar, "
+            "configura el sistema y presiona **Guardar A** o **Guardar B**."
+        )
+    else:
+        col_a, col_b = st.columns(2)
+        with col_a:
+            st.subheader("Configuracion A")
+            if cfg_a is None:
+                st.warning("Falta A. Presiona **Guardar A** en el sidebar.")
+            else:
+                st.write(f"Modelo: **{cfg_a['model_name']}**")
+                st.write(f"Kp={cfg_a['Kp']}, Ki={cfg_a['Ki']}, Kd={cfg_a['Kd']}")
+                st.write(f"ref={cfg_a['ref']}, t_final={cfg_a['t_final']}")
+        with col_b:
+            st.subheader("Configuracion B")
+            if cfg_b is None:
+                st.warning("Falta B. Presiona **Guardar B** en el sidebar.")
+            else:
+                st.write(f"Modelo: **{cfg_b['model_name']}**")
+                st.write(f"Kp={cfg_b['Kp']}, Ki={cfg_b['Ki']}, Kd={cfg_b['Kd']}")
+                st.write(f"ref={cfg_b['ref']}, t_final={cfg_b['t_final']}")
+
+        st.divider()
+        if cfg_a is not None and cfg_b is not None:
+            if st.button("Simular y comparar", type="primary"):
+                with st.spinner("Simulando A y B..."):
+                    try:
+                        res_a = simulate_from_config(cfg_a)
+                        res_b = simulate_from_config(cfg_b)
+                        st.session_state["comparison_result"] = (res_a, res_b)
+                    except Exception as exc:
+                        st.error(f"Error simulando: {exc}")
+
+            comparison = st.session_state.get("comparison_result")
+            if comparison is not None:
+                res_a, res_b = comparison
+                label_a = f"A: {cfg_a['model_name']} (Kp={cfg_a['Kp']})"
+                label_b = f"B: {cfg_b['model_name']} (Kp={cfg_b['Kp']})"
+
+                st.plotly_chart(
+                    comparison_chart(
+                        res_a.t, res_a.y, res_a.ref,
+                        res_b.t, res_b.y, res_b.ref,
+                        label_a, label_b,
+                    ),
+                )
+
+                st.subheader("Metricas lado a lado")
+                rows = compare_metrics(res_a, res_b)
+                st.dataframe(rows)
+
+                st.subheader("Como interpretar")
+                st.caption(
+                    "**Delta (B - A)** indica cuanto cambio de A a B. "
+                    "Delta positivo en overshoot = B tiene mas sobreimpulso. "
+                    "Delta negativo en rise time = B es mas rapido."
+                )
+                if st.button("Limpiar comparacion"):
+                    if "comparison_result" in st.session_state:
+                        del st.session_state["comparison_result"]
+                    st.rerun()
+        else:
+            st.info("Necesitas A y B guardadas para comparar.")

@@ -168,3 +168,32 @@ PRESETS = {
         "desc": "PID con Kd para amortiguar el segundo orden.",
     },
 }
+def capture_config(
+    model_name: str, params: dict,
+    Kp: float, Ki: float, Kd: float, tau_f: float,
+    ref: float, t_final: float, dt: float,
+    u_min: float, u_max: float,
+    dist_enabled: bool, dist_t_step: float, dist_magnitude: float,
+) -> dict:
+    """Captura la configuracion actual como dict inmutable (hashable)."""
+    return {
+        "model_name": model_name,
+        "params": tuple(sorted(params.items())),
+        "Kp": float(Kp), "Ki": float(Ki), "Kd": float(Kd), "tau_f": float(tau_f),
+        "ref": float(ref), "t_final": float(t_final), "dt": float(dt),
+        "u_min": float(u_min), "u_max": float(u_max),
+        "dist_enabled": bool(dist_enabled),
+        "dist_t_step": float(dist_t_step),
+        "dist_magnitude": float(dist_magnitude),
+    }
+
+
+def simulate_from_config(cfg: dict):
+    """Simula usando un dict devuelto por capture_config()."""
+    return cached_simulate(
+        cfg["model_name"], cfg["params"],
+        cfg["Kp"], cfg["Ki"], cfg["Kd"], cfg["tau_f"],
+        cfg["ref"], cfg["t_final"], cfg["dt"],
+        cfg["u_min"], cfg["u_max"],
+        cfg["dist_enabled"], cfg["dist_t_step"], cfg["dist_magnitude"],
+    )
