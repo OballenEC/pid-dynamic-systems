@@ -45,14 +45,14 @@ cd "C:\Users\Home\Desktop\PYTHON\PROJECTS\PID & Dynamic Systems"
 
 ```text
 src/pid_dynamic_systems/
-  models/           # dc_motor.py (OK), thermal.py (PEND), mass_spring_damper.py (PEND)
-  controllers/      # pid.py (PEND)
-  simulation/       # engine.py (PEND)
+  models/           # dc_motor.py, thermal.py, mass_spring_damper.py (OK)
+  controllers/      # pid.py (OK)
+  simulation/       # engine.py (OK)
   analysis/         # metrics.py (PEND)
   ui/               # app.py (PEND)
   report/           # pdf_generator.py (PEND)
 tests/
-  unit/             # test_dc_motor.py (OK)
+  unit/             # dc_motor, thermal, msd, pid, engine (OK)
   integration/
 ```
 
@@ -161,13 +161,10 @@ class PIDController:
 
 ## 7. Simulacion y metricas (Fase 3)
 
-Integrador: `scipy.integrate.solve_ivp` con RK45.
-
-`t_eval = np.arange(0, t_final, dt)`, dt=0.001 s.
-
-En cada paso del RHS: `e = ref - x[output_index]`, `u = pid.step(e)`,
-`u = clip(u, u_min, u_max)`, `dx = model.derivatives(t, x, [u, dist])`.
-
+**Diseno: ZOH paso a paso.** El PID es discreto; se actualiza cada dt y entre updates u es constante. Ver engine.py.
+Para cada intervalo [t_k, t_k+1]: e_k = ref - y_k; u_k = pid.step(e_k, dt); solve_ivp integra con u_k fijo; y_{k+1} = x_{k+1}[output_index].
+Respetando anti-windup y derivada filtrada del PID discreto.
+Metricas en analysis/metrics.py (Fase 3.2).
 Metricas a calcular:
 
 | Metrica | Definicion |
@@ -253,6 +250,7 @@ Si eres el asistente que recibe este handoff:
 7. No introduzcas dependencias nuevas sin justificar.
 
 Bienvenido al proyecto. Pregunta al usuario en que fase esta.
+
 
 
 
