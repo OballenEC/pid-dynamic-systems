@@ -16,6 +16,7 @@ from pid_dynamic_systems.simulation.engine import simulate
 from pid_dynamic_systems.ui.plotly_charts import (
     control_chart, error_chart, response_chart,
 )
+from pid_dynamic_systems.ui.explanations import explain_all
 from pid_dynamic_systems.ui.state import (
     MODEL_REGISTRY, build_model, init_session_state,
 )
@@ -219,4 +220,59 @@ with tab_analysis:
             st.warning(f"No se pudo calcular el Bode: {exc}")
 
 with tab_learn:
-    st.info("Modulo educativo — Fase 4.4.")
+    if result is None or st.session_state.get("result_model") is None:
+        st.info("Primero ejecuta una simulacion en el tab **Simulacion**.")
+    else:
+        saved_model = st.session_state["result_model"]
+        ctrl_learn = PIDController(Kp=Kp, Ki=Ki, Kd=Kd, tau_f=tau_f,
+                                    u_min=u_min, u_max=u_max, dt=dt)
+        poles_learn = closed_loop_poles(saved_model, ctrl_learn)
+        stable_learn = is_stable(poles_learn)
+
+        y_ss_l = float(result.y[-1])
+        tr_l = rise_time(result.t, result.y, y_ss_l)
+        ts_l = settling_time(result.t, result.y, y_ss_l)
+        os_l = overshoot(result.y, y_ss_l)
+        sse_l = steady_state_error(result.ref, y_ss_l)
+        zeta_vals = [damping_ratio(p) for p in poles_learn if complex(p).imag > 0]
+        zeta_l = max(zeta_vals) if zeta_vals else 1.0
+        wn_vals = [natural_frequency(p) for p in poles_learn]
+        wn_l = max(wn_vals) if wn_vals else 0.0
+
+        st.caption(
+            "Las explicaciones de abajo se generan dinamicamente segun los "
+            "resultados reales de tu simulacion. Cambia parametros y presiona "
+            "**Simular** para ver como cambia la interpretacion."
+        )
+
+        with st.expander("Sobreimpulso", expanded=True):
+            for line in explain_overshoot(os_l, zeta_l):
+                st.write("- " + line)
+        with st.expander("Velocidad (rise time)"):
+            for line in explain_rise_time(tr_l, wn_l, Kp):
+                st.write("- " + line)
+        with st.expander("Asentamiento"):
+            for line in explain_settling_time(ts_l, zeta_l, Kd):
+                st.write("- " + line)
+        with st.expander("Error estacionario"):
+            for line in explain_steady_state_error(sse_l, Ki):
+                st.write("- " + line)
+        with st.expander("Saturacion"):
+            for line in explain_saturation(result.saturated_steps, u_min, u_max):
+                st.write("- " + line)
+        with st.expander("Estabilidad"):
+            for line in explain_stability(stable_learn, poles_learn):
+                st.write("- " + line)
+
+        with st.expander("Como leer todo junto"):
+            st.markdown(
+                "**Regla general del PID:**\n"
+                "- Aumentar **Kp** acelera la respuesta pero puede aumentar el "
+                "sobreimpulso y acercar el sistema a la inestabilidad.\n"
+                "- Aumentar **Ki** elimina el error estacionario pero puede "
+                "introducir oscilaciones lentas.\n"
+                "- Aumentar **Kd** amortigua (reduce sobreimpulso) pero "
+                "amplifica ruido de medicion.\n"
+                "- **tau_f** filtra la derivada: mas grande = mas suave pero "
+                "menos reactivo."
+            )
