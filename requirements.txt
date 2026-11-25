@@ -1,0 +1,7 @@
+numpy
+scipy
+control
+streamlit
+plotly
+reportlab
+matplotlib
