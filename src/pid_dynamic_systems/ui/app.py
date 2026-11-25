@@ -23,7 +23,7 @@ from pid_dynamic_systems.ui.state import (
 from pid_dynamic_systems.ui.state import cached_simulate
 
 from pid_dynamic_systems.analysis.stability import (
-    damping_ratio, is_stable, natural_frequency,
+    closed_loop_poles, damping_ratio, is_stable, natural_frequency,
 )
 from pid_dynamic_systems.ui.stability_plots import (
     bode_chart, closed_loop_step_chart, poles_chart,
@@ -174,6 +174,72 @@ with tab_sim:
             file_name="simulacion.csv",
             mime="text/csv",
         )
+
+        st.divider()
+        st.subheader("Reporte PDF")
+        if st.button("Preparar PDF", type="secondary"):
+            with st.spinner("Generando PDF..."):
+                saved_model = st.session_state.get("result_model")
+                if saved_model is None:
+                    st.error("Modelo no disponible. Presiona Simular primero.")
+                else:
+                    ctrl_pdf = PIDController(
+                        Kp=Kp, Ki=Ki, Kd=Kd, tau_f=tau_f,
+                        u_min=u_min, u_max=u_max, dt=dt,
+                    )
+                    poles_pdf = closed_loop_poles(saved_model, ctrl_pdf)
+                    is_stable_pdf = is_stable(poles_pdf)
+                    pole_data_pdf = [
+                        {
+                            "polo": f"p{i}",
+                            "Re": f"{complex(p).real:+.4f}",
+                            "Im": f"{complex(p).imag:+.4f}",
+                            "|p| (wn)": f"{natural_frequency(p):.4f}",
+                            "zeta": f"{damping_ratio(p):.4f}",
+                        }
+                        for i, p in enumerate(poles_pdf, start=1)
+                    ]
+                    y_ss_pdf = float(result.y[-1])
+                    tr_pdf = rise_time(result.t, result.y, y_ss_pdf)
+                    ts_pdf = settling_time(result.t, result.y, y_ss_pdf)
+                    os_pdf = overshoot(result.y, y_ss_pdf)
+                    sse_pdf = steady_state_error(result.ref, y_ss_pdf)
+                    zeta_vals_pdf = [damping_ratio(p) for p in poles_pdf
+                                     if complex(p).imag > 0]
+                    zeta_pdf = max(zeta_vals_pdf) if zeta_vals_pdf else 1.0
+                    wn_vals_pdf = [natural_frequency(p) for p in poles_pdf]
+                    wn_pdf = max(wn_vals_pdf) if wn_vals_pdf else 0.0
+                    expl_pdf = {
+                        "Sobreimpulso": explain_overshoot(os_pdf, zeta_pdf),
+                        "Velocidad (rise time)": explain_rise_time(tr_pdf, wn_pdf, Kp),
+                        "Asentamiento": explain_settling_time(ts_pdf, zeta_pdf, Kd),
+                        "Error estacionario": explain_steady_state_error(sse_pdf, Ki),
+                        "Saturacion": explain_saturation(result.saturated_steps, u_min, u_max),
+                        "Estabilidad": explain_stability(is_stable_pdf, poles_pdf),
+                    }
+                    pdf_bytes = generate_pdf(
+                        result=result, model=saved_model,
+                        model_name=model_name, controller=ctrl_pdf,
+                        model_description=MODEL_REGISTRY[model_name]["description"],
+                        params=params,
+                        u_min=u_min, u_max=u_max,
+                        dist_enabled=dist_enabled,
+                        dist_t_step=dist_t_step,
+                        dist_magnitude=dist_magnitude,
+                        pole_data=pole_data_pdf,
+                        is_stable=is_stable_pdf,
+                        explanations=expl_pdf,
+                    )
+                    st.session_state["pdf_bytes"] = pdf_bytes
+                    st.success(f"PDF generado ({len(pdf_bytes) // 1024} KB)")
+        if st.session_state.get("pdf_bytes"):
+            st.download_button(
+                "Descargar PDF",
+                data=st.session_state["pdf_bytes"],
+                file_name=f"reporte_{model_name.replace(' ', '_').lower()}.pdf",
+                mime="application/pdf",
+                type="primary",
+            )
 
 with tab_analysis:
     if result is None or st.session_state.get("result_model") is None:
