@@ -5,7 +5,7 @@
 Plataforma de simulacion de 3 sistemas dinamicos con PID.
 Stack: Python + numpy + scipy + control + streamlit + plotly + pytest.
 
-**Estado:** Fases 0, 1.1, 1.2, 1.3, 2 y 3.1 completas. Pendientes 3.2, 3.3, 4, 5.
+**Estado:** Fases 0, 1.1, 1.2, 1.3, 2, 3.1 y 3.2 completas. Pendientes 3.3, 4, 5.
 ## 1. Preferencias del desarrollador (CRITICO)
 
 - **TODO por PowerShell.** Bloques copy-paste listos para ejecutar:
@@ -186,7 +186,7 @@ Metricas a calcular:
 | 1.2 | models/thermal.py + 6 tests | COMPLETA |
 | 1.3 | models/mass_spring_damper.py + 6 tests | COMPLETA |
 | 2   | controllers/pid.py + 7 tests | COMPLETA |
-| 3   | simulation/engine.py + analysis/metrics.py | PARCIAL (3.1 engine OK) |
+| 3   | simulation/engine.py + analysis/metrics.py | PARCIAL (falta 3.3) |
 | 4   | ui/app.py (Streamlit + Plotly) | PENDIENTE |
 | 5   | report/pdf_generator.py (ReportLab) | PENDIENTE |
 
@@ -250,6 +250,7 @@ Si eres el asistente que recibe este handoff:
 7. No introduzcas dependencias nuevas sin justificar.
 
 Bienvenido al proyecto. Pregunta al usuario en que fase esta.
+
 
 
 
