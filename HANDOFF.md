@@ -186,7 +186,7 @@ Metricas a calcular:
 |---|---|---|
 | 0   | venv, deps, estructura, pyproject, git+github | COMPLETA |
 | 1.1 | models/dc_motor.py + 4 tests | COMPLETA |
-| 1.2 | models/thermal.py + 4 tests | PENDIENTE |
+| 1.2 | models/thermal.py + 6 tests | COMPLETA |
 | 1.3 | models/mass_spring_damper.py + 5 tests | PENDIENTE |
 | 2   | controllers/pid.py + tests | PENDIENTE |
 | 3   | simulation/engine.py + analysis/metrics.py | PENDIENTE |
