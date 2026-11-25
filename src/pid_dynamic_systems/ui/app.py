@@ -20,6 +20,13 @@ from pid_dynamic_systems.ui.state import (
     MODEL_REGISTRY, build_model, init_session_state,
 )
 
+from pid_dynamic_systems.analysis.stability import (
+    damping_ratio, is_stable, natural_frequency,
+)
+from pid_dynamic_systems.ui.stability_plots import (
+    bode_chart, closed_loop_step_chart, poles_chart,
+)
+
 
 st.set_page_config(
     page_title="PID & Dynamic Systems",
@@ -167,7 +174,49 @@ with tab_sim:
         )
 
 with tab_analysis:
-    st.info("Analisis de estabilidad y polos — Fase 4.3.")
+    if result is None or st.session_state.get("result_model") is None:
+        st.info("Primero ejecuta una simulacion en el tab **Simulacion**.")
+    else:
+        saved_model = st.session_state["result_model"]
+        ctrl_cl = PIDController(Kp=Kp, Ki=Ki, Kd=Kd, tau_f=tau_f,
+                                u_min=u_min, u_max=u_max, dt=dt)
+        poles = closed_loop_poles(saved_model, ctrl_cl)
+        stable = is_stable(poles)
+
+        st.subheader("Estabilidad del lazo cerrado")
+        col_a, col_b = st.columns(2)
+        col_a.metric("Estable", "SI" if stable else "NO",
+                     delta=None if stable else "inestable")
+        col_b.metric("Numero de polos", f"{len(poles)}")
+
+        if len(poles) > 0:
+            pole_data = []
+            for i, p in enumerate(poles, start=1):
+                p_c = complex(p)
+                pole_data.append({
+                    "polo": f"p{i}",
+                    "Re": f"{p_c.real:+.4f}",
+                    "Im": f"{p_c.imag:+.4f}",
+                    "|p| (wn)": f"{natural_frequency(p_c):.4f}",
+                    "zeta": f"{damping_ratio(p_c):.4f}",
+                })
+            st.dataframe(pole_data, use_container_width=True)
+
+        st.subheader("Plano complejo")
+        st.plotly_chart(poles_chart(poles), use_container_width=True)
+
+        st.subheader("Respuesta al escalon (lazo cerrado)")
+        st.plotly_chart(
+            closed_loop_step_chart(saved_model, ctrl_cl, t_final=t_final, dt=dt),
+            use_container_width=True,
+        )
+
+        st.subheader("Bode del lazo cerrado")
+        try:
+            st.plotly_chart(bode_chart(saved_model, ctrl_cl),
+                            use_container_width=True)
+        except Exception as exc:
+            st.warning(f"No se pudo calcular el Bode: {exc}")
 
 with tab_learn:
     st.info("Modulo educativo — Fase 4.4.")
