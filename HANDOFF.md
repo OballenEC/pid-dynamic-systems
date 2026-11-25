@@ -5,7 +5,7 @@
 Plataforma de simulacion de 3 sistemas dinamicos con PID.
 Stack: Python + numpy + scipy + control + streamlit + plotly + pytest.
 
-**Estado:** Fases 0 y 1.1 completas. Pendientes 1.2, 1.3, 2, 3, 4, 5.
+**Estado:** Fases 0, 1.1, 1.2 y 1.3 completas. Pendientes 2, 3, 4, 5.
 ## 1. Preferencias del desarrollador (CRITICO)
 
 - **TODO por PowerShell.** Bloques copy-paste listos para ejecutar:
@@ -88,7 +88,7 @@ Kt=0.1 N*m/A, Ke=0.1 V*s/rad.
 Entrada: `v` [V]. Perturbacion: `tau_L` [N*m]. Salida: `omega` [rad/s].
 Estado: `[i, omega]`. Ganancia DC: `0.909 rad/s/V`.
 
-### 5.2 Sistema termico (PENDIENTE Fase 1.2)
+### 5.2 Sistema termico (COMPLETO en models/thermal.py)
 
 ```text
 C dT/dt = (T_amb - T)/R + Q_in
@@ -101,7 +101,7 @@ Parametros (SI): R=0.1 K/W, C=1000 J/K, tau=RC=100 s.
 Entrada: `Q_in` [W]. Perturbacion: `T_amb` [K]. Salida: `T` [K].
 Estado: `[T]`. Ganancia DC: `R = 0.1 K/W`. Polo: `-1/RC = -0.01`.
 
-### 5.3 Masa-resorte-amortiguador (PENDIENTE Fase 1.3)
+### 5.3 Masa-resorte-amortiguador (COMPLETO en models/mass_spring_damper.py)
 
 ```text
 m*x'' + c*x' + k*x = F + F_dist
@@ -187,7 +187,7 @@ Metricas a calcular:
 | 0   | venv, deps, estructura, pyproject, git+github | COMPLETA |
 | 1.1 | models/dc_motor.py + 4 tests | COMPLETA |
 | 1.2 | models/thermal.py + 6 tests | COMPLETA |
-| 1.3 | models/mass_spring_damper.py + 5 tests | PENDIENTE |
+| 1.3 | models/mass_spring_damper.py + 6 tests | COMPLETA |
 | 2   | controllers/pid.py + tests | PENDIENTE |
 | 3   | simulation/engine.py + analysis/metrics.py | PENDIENTE |
 | 4   | ui/app.py (Streamlit + Plotly) | PENDIENTE |
@@ -253,3 +253,4 @@ Si eres el asistente que recibe este handoff:
 7. No introduzcas dependencias nuevas sin justificar.
 
 Bienvenido al proyecto. Pregunta al usuario en que fase esta.
+
