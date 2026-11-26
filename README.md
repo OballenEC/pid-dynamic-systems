@@ -1,9 +1,9 @@
-﻿# PID & Dynamic Systems
+# PID & Dynamic Systems
 
 > Laboratorio interactivo para el estudio de sistemas dinamicos y controladores PID.
 
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://pid-dynamic-systems.streamlit.app)
-[![Tests](https://img.shields.io/badge/tests-59%20passed-brightgreen)](https://github.com/OballenEC/pid-dynamic-systems)
+[![Tests](https://img.shields.io/badge/tests-71%20passed-brightgreen)](https://github.com/OballenEC/pid-dynamic-systems)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
@@ -21,10 +21,12 @@ interactiva con analisis de estabilidad y explicaciones pedagogicas.
 - **Motor de simulacion ZOH** paso a paso (respeta el caracter discreto del controlador)
 - **Metricas** de respuesta temporal: rise time, settling, overshoot, SSE, ISE
 - **Analisis de estabilidad** por polos del lazo cerrado
-- **UI Streamlit** con 3 tabs: Simulacion / Analisis / Aprender
+- **UI Streamlit** con 5 tabs: Simulacion / Analisis / Aprender / Guia / Comparar
 - **Modulo educativo** con explicaciones generadas dinamicamente
 - **Reporte PDF** descargable con parametros, graficas, metricas e interpretacion
-- **59 tests** unitarios (validados contra soluciones analiticas)
+- **Comparacion A/B** de dos configuraciones con metricas delta lado a lado
+- **Presets y tooltips** en la UI para exploracion rapida
+- **71 tests** unitarios (validados contra soluciones analiticas + smoke test de import de app.py)
 
 ---
 
@@ -81,7 +83,7 @@ src/pid_dynamic_systems/
   analysis/       # Metricas + estabilidad (dominio puro)
   ui/             # Streamlit + Plotly
   report/         # ReportLab + matplotlib
-tests/unit/       # 10 archivos, 59 tests
+tests/unit/       # 14 archivos, 71 tests
 ```
 
 **Regla:** `models`, `controllers`, `simulation`, `analysis` no
@@ -112,8 +114,8 @@ Decisiones de diseno completas en [`docs/technical_documentation.md`](docs/techn
 python -m pytest -v
 ```
 
-**59 tests** cubriendo modelos, PID, simulacion, metricas, estabilidad,
-graficas, explicaciones y generacion de PDF. Todos validan contra
+**71 tests** cubriendo modelos, PID, simulacion, metricas, estabilidad,
+graficas, explicaciones, comparacion A/B y generacion de PDF. Incluye test_app_import.py que detecta NameError en app.py en 0.1s. Todos validan contra
 soluciones analiticas conocidas (no solo no-regresion).
 
 ---

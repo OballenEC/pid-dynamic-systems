@@ -1,11 +1,11 @@
-﻿# PID & Dynamic Systems — Handoff
+# PID & Dynamic Systems â€” Handoff
 
 ## 0. Resumen
 
 Plataforma de simulacion de 3 sistemas dinamicos con PID.
 Stack: Python + numpy + scipy + control + streamlit + plotly + pytest.
 
-**Estado:** PROYECTO COMPLETO (Fases 0-5.3). Deploy: https://pid-dynamic-systems.streamlit.app. Features extra: tooltips, presets, guia, comparacion A/B. 70 tests.
+**Estado:** PROYECTO COMPLETO + auditoria P0 (25 nov 2026). Deploy: https://pid-dynamic-systems.streamlit.app. Features: tooltips, presets, guia, comparacion A/B, smoke test de import. 71 tests. Ver seccion 12 para el fix P0.
 ## 1. Preferencias del desarrollador (CRITICO)
 
 - **TODO por PowerShell.** Bloques copy-paste listos para ejecutar:
@@ -48,11 +48,11 @@ src/pid_dynamic_systems/
   models/           # dc_motor.py, thermal.py, mass_spring_damper.py (OK)
   controllers/      # pid.py (OK)
   simulation/       # engine.py (OK)
-  analysis/         # metrics.py (PEND)
-  ui/               # app.py (PEND)
+  analysis/         # metrics.py, stability.py (OK)
+  ui/               # app.py, state.py, explanations.py, plotly_charts.py, stability_plots.py (OK)
   report/         # pdf_generator.py (OK: ReportLab + matplotlib)
 tests/
-  unit/    # dc_motor, thermal, msd, pid, engine, metrics, stability, charts, explanations, pdf (OK)
+  unit/    # dc_motor, thermal, msd, pid, engine, metrics, stability, stability_plots, charts, explanations, pdf, comparison, state, app_import (OK)
   integration/
 ```
 
@@ -187,8 +187,8 @@ Metricas a calcular:
 | 1.3 | models/mass_spring_damper.py + 6 tests | COMPLETA |
 | 2   | controllers/pid.py + 7 tests | COMPLETA |
 | 3   | simulation/engine.py + analysis/metrics.py | COMPLETA (3.1 + 3.2 + 3.3) |
-| 4   | ui/app.py (Streamlit + Plotly) | PENDIENTE |
-| 5   | report/pdf_generator.py (ReportLab) | PARCIAL (5.1 PDF OK; faltan 5.2 deploy, 5.3 docs) |
+| 4   | ui/app.py (Streamlit + Plotly) | COMPLETA |
+| 5   | report/pdf_generator.py (ReportLab) | COMPLETA |
 
 ## 9. Gotchas
 
@@ -273,3 +273,34 @@ Bienvenido al proyecto. Pregunta al usuario en que fase esta.
 
 
 
+
+
+## 12. Post-cierre: auditoria 25 nov 2026
+
+Auditoria pre-exposicion detecto bug P0 clase NameError. app.py usaba
+13 funciones sin importarlas: explain_overshoot, explain_rise_time,
+explain_settling_time, explain_steady_state_error, explain_saturation,
+explain_stability, explain_all, capture_config, generate_pdf,
+simulate_from_config, comparison_chart, compare_metrics.
+
+Tests no lo detectaban porque pytest nunca importa app.py. Runtime en
+Streamlit Cloud rompia: generacion PDF, guardar A/B, comparacion A/B,
+tab Aprender. Detectado con `ruff check --select F821` contra el deploy.
+
+**Commits:**
+- cd4feb7: fix(ui): importa explain_* en app.py
+- 54a35df: fix(ui): completa imports + smoke test test_app_import.py
+
+**Prevencion permanente:**
+- tests/unit/test_app_import.py: importa app.py en 0.1s, detecta
+  cualquier NameError futuro de import.
+- Antes de push: `ruff check --select F821 src/` debe dar 0.
+
+**Deploy verificado:** tab Aprender, guardar A/B, comparar A/B, PDF
+funcionales post-reboot en Streamlit Cloud.
+
+**Deuda tecnica documentada (no atacada por tiempo):**
+- PDF: aspect ratio de imagenes (2% deformacion, cosmetico)
+- PDF: Spacer de 3cm en portada (cosmetico)
+- compare_metrics: y_ss = y[-1] asume t_final suficiente (convencion)
+- pole_data en PDF sin colWidths (riesgo no reproducido)
