@@ -39,6 +39,10 @@ from pid_dynamic_systems.ui.stability_plots import (
 )
 
 
+from pid_dynamic_systems.report.pdf_generator import generate_pdf
+from pid_dynamic_systems.ui.state import capture_config, simulate_from_config
+from pid_dynamic_systems.ui.plotly_charts import comparison_chart, compare_metrics
+
 st.set_page_config(
     page_title="PID & Dynamic Systems",
     page_icon="",
