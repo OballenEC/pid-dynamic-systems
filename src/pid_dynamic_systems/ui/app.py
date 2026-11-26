@@ -1,4 +1,4 @@
-"""Streamlit app para PID & Dynamic Systems."""
+﻿"""Streamlit app para PID & Dynamic Systems."""
 
 from __future__ import annotations
 
@@ -16,7 +16,15 @@ from pid_dynamic_systems.simulation.engine import simulate
 from pid_dynamic_systems.ui.plotly_charts import (
     control_chart, error_chart, response_chart,
 )
-from pid_dynamic_systems.ui.explanations import explain_all
+from pid_dynamic_systems.ui.explanations import (
+    explain_all,
+    explain_overshoot,
+    explain_rise_time,
+    explain_saturation,
+    explain_settling_time,
+    explain_stability,
+    explain_steady_state_error,
+)
 from pid_dynamic_systems.ui.state import (
     MODEL_REGISTRY, build_model, init_session_state,
 )
